@@ -177,7 +177,12 @@ class BaseTaylorAnalysis(object):
         """
 
         # first order grads
-        gradients = grad(pred, forward_kwargs.tctensor, retain_graph=True)[0]
+        gradients = grad(
+            pred,
+            forward_kwargs.tctensor,
+            create_graph=True,
+            retain_graph=True,
+        )[0]
 
         # get relevant taylorcoefficients
         tcs = {}
@@ -209,23 +214,28 @@ class BaseTaylorAnalysis(object):
         """
         # first order gradients
         gradients = grad(
-            pred, forward_kwargs.tctensor, create_graph=True, retain_graph=True
+            pred,
+            forward_kwargs.tctensor,
+            create_graph=True,
+            retain_graph=True,
         )[0]
         gradients = gradients.sum(
             axis=_get_summation_indices(gradients.shape, tctensor_features_axis)
         )
         # second order gradients
-        gradients = grad(gradients[ind_i], forward_kwargs.tctensor, retain_graph=True)[
-            0
-        ]
+        gradients = grad(
+            gradients[ind_i],
+            forward_kwargs.tctensor,
+            create_graph=True,
+            retain_graph=True,
+        )[0]
 
         # get relevant taylorcoefficients for ind_i tree
         tcs = {}
         for ind_j in indices_j:
             fac = _get_factorial_factors(ind_i, ind_j)
             tcs[(ind_i, ind_j)] = (
-                fac
-                * gradients[_get_slice(gradients.shape, ind_j, tctensor_features_axis)]
+                fac * gradients[_get_slice(gradients.shape, ind_j, tctensor_features_axis)]
             )
         return tcs
 
@@ -253,7 +263,10 @@ class BaseTaylorAnalysis(object):
         """
         # first order gradients
         gradients = grad(
-            pred, forward_kwargs.tctensor, create_graph=True, retain_graph=True
+            pred,
+            forward_kwargs.tctensor,
+            create_graph=True,
+            retain_graph=True,
         )[0]
         gradients = gradients.sum(
             axis=_get_summation_indices(gradients.shape, tctensor_features_axis)
@@ -269,17 +282,19 @@ class BaseTaylorAnalysis(object):
             axis=_get_summation_indices(gradients.shape, tctensor_features_axis)
         )
         # third order gradients
-        gradients = grad(gradients[ind_j], forward_kwargs.tctensor, retain_graph=True)[
-            0
-        ]
+        gradients = grad(
+            gradients[ind_j],
+            forward_kwargs.tctensor,
+            create_graph=True,
+            retain_graph=True,
+        )[0]
 
         # get relevant taylorcoefficients for ind_i, ind_j tree
         tcs = {}
         for ind_k in indices_k:
             fac = _get_factorial_factors(ind_i, ind_j, ind_k)
             tcs[(ind_i, ind_j, ind_k)] = (
-                fac
-                * gradients[_get_slice(gradients.shape, ind_k, tctensor_features_axis)]
+                fac * gradients[_get_slice(gradients.shape, ind_k, tctensor_features_axis)]
             )
         return tcs
 
